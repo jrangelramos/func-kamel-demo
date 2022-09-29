@@ -1,0 +1,14 @@
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: trigger-newissue
+spec:
+  broker: my-kafka-broker
+  filter:
+    attributes:
+      type: NewOrModifiedIssue
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: issue-inspector

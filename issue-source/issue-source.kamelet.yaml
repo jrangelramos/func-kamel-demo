@@ -1,0 +1,86 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: Kamelet
+metadata:
+  name: issue-source
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: Github Issue Source (Demo for Func GA Test)
+    description: |-
+      Retrieve new and modified Git Hub issues for a given repository and turn then into events
+    properties:
+      period:
+        title: Pulling interval
+        description: The interval between to Github issue service (in milliseconds)
+        type: integer
+        default: 30000
+      pull-url:
+        title: Pull URL
+        description: The URL used to call GitHub is
+        type: String
+        default: http://foo-bar
+  types:
+    out:
+      mediaType: application/json
+  dependencies:
+    - camel-quarkus:caffeine
+    - camel-quarkus:http
+    - camel:groovy
+  template:
+    from:
+      uri: "timer:issuesource"
+      parameters:
+        period: "{{period}}"
+      steps:
+      - to-d: "{{pull-url}}"
+      - unmarshal:
+          json: {}
+      - split:
+         jsonpath: "$.[*]"
+         steps:
+         - set-property:
+             name: newEvent
+             constant: Boolean.TRUE
+         - set-property:
+             name: issueNumber
+             simple: "${body[number]}"
+         - set-property:
+             name: issueUpdatedAt
+             simple: "${body[updated_at]}"
+         - claim-check:
+             operation: Push
+         - set-header:
+             name: CamelCaffeineAction
+             constant: GET
+         - set-header:
+             name: CamelCaffeineKey
+             exchange-property: issueNumber
+         - to-d: "caffeine-cache://issues"
+         - choice:
+             when:
+             - simple: "${header.CamelCaffeineActionHasResult}"
+               steps:
+               - set-property:
+                   name: newEvent
+                   groovy: "in.body != exchange.getProperty('issueUpdatedAt')"
+         - set-header:
+             name: CamelCaffeineAction
+             constant: PUT
+         - set-header:
+             name: CamelCaffeineValue
+             exchange-property: issueUpdatedAt
+         - to-d: "caffeine-cache://issues"
+         - claim-check:
+             operation: Pop
+         - choice:
+             when:
+             - simple: "${exchangeProperty.newEvent}"
+               steps:
+               - set-header:
+                   name: ce-type
+                   constant: NewOrModifiedIssue
+               - log: ">> New or Modified issue found. #${exchangeProperty.issueNumber}"
+               - marshal:
+                   json: {}
+               - to: "kamelet:sink"

@@ -1,0 +1,14 @@
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: trigger-addlabel
+spec:
+  broker: my-kafka-broker
+  filter:
+    attributes:
+      type: AddLabelRequest
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: issue-labeler

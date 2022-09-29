@@ -1,0 +1,29 @@
+specVersion: 0.25.0
+name: issue-puller
+namespace: ""
+runtime: go
+registry: ""
+image: ""
+imageDigest: ""
+buildpacks:
+- paketo-buildpacks/go-dist
+- ghcr.io/boson-project/go-function-buildpack:tip
+builder: pack
+volumes: []
+buildEnvs: []
+envs:
+- name: GITHUB_REPO
+  value: '{{ configMap:gh-config:repo }}'
+- name: GITHUB_ORG
+  value: '{{ configMap:gh-config:org }}'
+- name: GITHUB_TOKEN
+  value: '{{ secret:gh-token:token }}'
+annotations: {}
+options: {}
+labels: []
+healthEndpoints:
+  liveness: /health/liveness
+  readiness: /health/readiness
+created: 2022-09-27T15:42:03.995178408-03:00
+invocation:
+  format: http

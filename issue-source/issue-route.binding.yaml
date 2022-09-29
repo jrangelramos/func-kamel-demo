@@ -1,0 +1,15 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: KameletBinding
+metadata:
+  name: issue-route
+spec:
+  source:
+    ref:
+      kind: Kamelet
+      apiVersion: camel.apache.org/v1alpha1
+      name: issue-source
+    properties:
+      period: 15000
+      pull-url: http://issue-puller.func-demo.svc
+  sink:
+    uri: http://kafka-broker-ingress.knative-eventing.svc.cluster.local/func-demo/my-kafka-broker
