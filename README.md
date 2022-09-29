@@ -28,6 +28,12 @@ Overral architecture can be represented as below:
 
 ![Overview](docs/overview.png)
 
+A live demo for this one is running and interacting with a test
+[repository](https://github.com/jrangelramos/node-fn). Feel free to give a trym by just create
+a new issue [here](https://github.com/jrangelramos/node-fn/issues/new) and in the comment fiel
+ensure to have "/kind *TYPE*" which *TYPE* can be one of the following: *feature*, *enhancement*,
+*bug* or *doc*.
+
 ### Services
 
 - **issue-source**  (camel integration)
@@ -56,6 +62,20 @@ https://github.com/jrangelramos/func-kamel-demo
 
 For this demo is required you have a GitHub account and [Personal Access Token](http://github.com/settings/tokens) 
 that will be used by the functions to read issues and write labels. In case you don't have any, please create one. 
+
+## Running on Openshift Cluster
+
+For Openshift the following operators are required for this demo:
+* Openshift Serverless Operator
+* Openshift AMQ Streams
+* Openshift Camel-K
+
+It is required you have:
+ * Kafta Cluster installed
+ * Knative Serving, Knative Eventing and Knative Kafka already created on the cluster
+
+It is also desired you have `oc` and `kn` CLI on your PATH. It's recommended,
+but not required, to have `kamel` CLI as well
 
 ## Implementation
 
@@ -113,7 +133,7 @@ From the function directory run:
 
 ```shell
 $ kn func config envs add --name=GITHUB_ORG --value='{{ configMap:gh-config:org }}'
-$ kn func config envs add --name=GITHUB_REPO --value=--value='{{ configMap:gh-config:repo }}'
+$ kn func config envs add --name=GITHUB_REPO --value='{{ configMap:gh-config:repo }}'
 $ kn func config envs add --name=GITHUB_TOKEN --value='{{ secret:gh-token:token }}'
 ```
 
@@ -741,7 +761,7 @@ issue-source   Ready
 
 The Kamelet we just deployed is just a parametrized template. Now let's create an KameletBinding
 that actually creates and run the Camel Route defined in the template. Create the file 
-`issue-source.binding.yaml` as below. 
+`issue-route.binding.yaml` as below. 
 
 Ensure to **replace** *YOUR_NAMESPACE* by the namespace you're using for this demo. 
 
