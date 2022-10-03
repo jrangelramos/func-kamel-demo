@@ -28,11 +28,13 @@ Overral architecture can be represented as below:
 
 ![Overview](docs/overview.png)
 
+<!---
 A **live** demo for this one is running and interacting with a test
 [repository](https://github.com/jrangelramos/node-fn). Feel free to try it by creating
 a new issue [here](https://github.com/jrangelramos/node-fn/issues/new).  In the comment field
 ensure to include "/kind *TYPE*" which *TYPE* can be one of the following: *feature*, *enhancement*,
 *bug* or *doc*.
+-->
 
 ### Services
 
